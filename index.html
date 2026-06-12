@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finfactor × FinB — Credit Data Billing Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBFAF7; --ink:#1B2430; --muted:#5E6B7A; --line:#E3E0D8;
+    --indigo:#27418F; --indigo-soft:#EAEEF9;
+    --rupee:#0E7A5F; --rupee-soft:#E6F3EE;
+    --amber:#B4690E; --amber-soft:#FBF0DF;
+    --red:#A8412E; --red-soft:#F8E9E5;
+    --card:#FFFFFF;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;font-size:15px;line-height:1.55}
+  .mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+
+  header{border-bottom:1px solid var(--line);padding:34px 0 26px;background:var(--card)}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--indigo);margin-bottom:10px}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-size:34px;letter-spacing:-.01em;line-height:1.15}
+  h1 .x{color:var(--muted);font-weight:500}
+  .sub{color:var(--muted);margin-top:8px;max-width:760px}
+  .meta-row{display:flex;gap:22px;flex-wrap:wrap;margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted)}
+  .meta-row b{color:var(--ink);font-weight:500}
+
+  .controls{display:flex;gap:10px;align-items:center;margin:26px 0 6px;flex-wrap:wrap}
+  .controls label{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  select{font-family:'IBM Plex Mono',monospace;font-size:13px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+  select:focus{outline:2px solid var(--indigo);outline-offset:1px}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:14px 0 8px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+  .kpi .lbl{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .kpi .val{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin-top:8px;font-variant-numeric:tabular-nums}
+  .kpi .note{font-size:12.5px;color:var(--muted);margin-top:5px}
+  .kpi.client .val{color:var(--indigo)}
+  .kpi.ff .val{color:var(--rupee)}
+  .kpi.finb .val{color:var(--amber)}
+
+  /* signature: rupee flow strip */
+  .flow{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:14px 0 34px}
+  .flow h2{font-family:'Fraunces',serif;font-size:19px;font-weight:600;margin-bottom:4px}
+  .flow p{font-size:13px;color:var(--muted);margin-bottom:16px}
+  .flowbar{display:flex;height:46px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+  .flowbar .seg{display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500;color:#fff;min-width:90px;transition:width .6s ease}
+  .seg.base{background:var(--amber)}
+  .seg.comm{background:var(--rupee)}
+  .flowlegend{display:flex;gap:26px;margin-top:12px;flex-wrap:wrap;font-size:13px}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:1px}
+  .dot.a{background:var(--amber)} .dot.g{background:var(--rupee)}
+
+  section{margin-bottom:42px}
+  h2.sec{font-family:'Fraunces',serif;font-size:23px;font-weight:600;margin-bottom:4px}
+  .secsub{color:var(--muted);font-size:13.5px;margin-bottom:16px}
+
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:13.5px}
+  thead th{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:500;text-align:right;padding:12px 14px;border-bottom:1px solid var(--line);background:#F6F4EF}
+  thead th:first-child, thead th.l{text-align:left}
+  tbody td{padding:11px 14px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+  tbody td:first-child, tbody td.l{text-align:left}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#FAF8F3}
+  .num{font-family:'IBM Plex Mono',monospace}
+  .pill{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 9px;border-radius:99px;letter-spacing:.04em}
+  .pill.exp{background:var(--indigo-soft);color:var(--indigo)}
+  .pill.crif{background:var(--amber-soft);color:var(--amber)}
+  .pos{color:var(--rupee);font-weight:500}
+  .clientbill{color:var(--indigo);font-weight:500}
+  tfoot td{padding:13px 14px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;background:#F6F4EF;border-top:2px solid var(--line);font-variant-numeric:tabular-nums}
+  tfoot td:first-child{text-align:left;font-family:'IBM Plex Sans',sans-serif}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .ratecard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+  .ratecard h3{font-family:'Fraunces',serif;font-size:16.5px;font-weight:600;margin-bottom:2px}
+  .ratecard .tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:12px}
+  .ratecard table{border:none;border-radius:0;font-size:13px}
+  .ratecard thead th{background:transparent;padding:8px 6px}
+  .ratecard tbody td{padding:7px 6px}
+
+  .callout{background:var(--red-soft);border:1px solid #ECD2CB;border-radius:12px;padding:14px 18px;font-size:13.5px;color:#7A3325;margin-top:16px}
+  .callout b{font-weight:600}
+
+  footer{border-top:1px solid var(--line);padding:22px 0 40px;color:var(--muted);font-size:12.5px}
+  footer .mono{font-size:11.5px}
+
+  @media (max-width:900px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .grid2{grid-template-columns:1fr}
+    h1{font-size:26px}
+    .wrap{padding:0 16px}
+    table{display:block;overflow-x:auto}
+  }
+  @media (prefers-reduced-motion:reduce){ .flowbar .seg{transition:none} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Channel Partner Billing · Credit Data Reports</div>
+    <h1>Finfactor <span class="x">×</span> FinB <span class="x">— Reconciliation Dashboard</span></h1>
+    <p class="sub">FinB bills each client at the rate Finfactor closed; Finfactor invoices FinB for the spread over the agreed base rate. Only <b>successful</b> fetches are billable.</p>
+    <div class="meta-row">
+      <span>Billing period <b id="metaPeriod">—</b></span>
+      <span>Vendor <b>FinB</b></span>
+      <span>Channel partner <b>Finfactor</b></span>
+      <span>Source <b>credit_data_fetch_log (1,499 records)</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="controls">
+    <label for="monthSel">Month</label>
+    <select id="monthSel"><option value="ALL">All months</option></select>
+    <label for="clientSel">Client</label>
+    <select id="clientSel"><option value="ALL">All clients</option></select>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi">
+      <div class="lbl">Successful fetches</div>
+      <div class="val mono" id="kpiFetches">—</div>
+      <div class="note" id="kpiFetchNote">—</div>
+    </div>
+    <div class="kpi client">
+      <div class="lbl">FinB to bill clients</div>
+      <div class="val mono" id="kpiClientBill">—</div>
+      <div class="note">Invoices raised by FinB at Finfactor-decided rates</div>
+    </div>
+    <div class="kpi ff">
+      <div class="lbl">Finfactor to collect from FinB</div>
+      <div class="val mono" id="kpiCommission">—</div>
+      <div class="note">Commission = (client rate − base rate) × successful fetches</div>
+    </div>
+    <div class="kpi finb">
+      <div class="lbl">FinB retains (base)</div>
+      <div class="val mono" id="kpiBase">—</div>
+      <div class="note">Base rate × successful fetches</div>
+    </div>
+  </div>
+
+  <div class="flow">
+    <h2>Where each billed rupee goes</h2>
+    <p>Split of total client billing between FinB's base-rate share and Finfactor's commission, for the current filter.</p>
+    <div class="flowbar" role="img" aria-label="Split of client billing between FinB base and Finfactor commission">
+      <div class="seg base" id="segBase"></div>
+      <div class="seg comm" id="segComm"></div>
+    </div>
+    <div class="flowlegend">
+      <span><span class="dot a"></span>FinB base share</span>
+      <span><span class="dot g"></span>Finfactor commission</span>
+    </div>
+  </div>
+
+  <section>
+    <h2 class="sec">Billing statement — client × bureau × month</h2>
+    <p class="secsub">Rates resolve from each client's volume slab on that month's successful fetch count. Failed fetches are shown for reference only and are never billed.</p>
+    <table id="mainTable" aria-label="Billing statement">
+      <thead>
+        <tr>
+          <th class="l">Client</th><th class="l">Bureau</th><th class="l">Month</th>
+          <th>Attempted</th><th>Failed</th><th>Successful</th>
+          <th>Client rate</th><th>Base rate</th><th>Spread</th>
+          <th>FinB bills client</th><th>Finfactor collects</th>
+        </tr>
+      </thead>
+      <tbody id="mainBody"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="5">Total</td>
+          <td id="ftSucc"></td><td></td><td></td><td></td>
+          <td id="ftBill"></td><td id="ftComm"></td>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="callout" id="fynroNote" style="display:none">
+      <b>Note — Fynro (Experian):</b> 16 Experian fetch attempts were logged for Fynro in May 2026, all failed. No Experian rate has been agreed for Fynro in the rate sheet; since billing applies only to successful fetches, the billing impact is ₹0, but the rate gap is worth closing.
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec">Client invoice summary</h2>
+    <p class="secsub">What FinB should invoice each client across the selected period, and Finfactor's commission on each account.</p>
+    <table aria-label="Client summary">
+      <thead><tr><th class="l">Client</th><th>Successful fetches</th><th>FinB bills client</th><th>FinB base share</th><th>Finfactor collects from FinB</th><th>Effective margin / fetch</th></tr></thead>
+      <tbody id="clientBody"></tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2 class="sec">Rate card reference</h2>
+    <p class="secsub">As captured in the agreed rate sheet. All current monthly volumes fall in the first slab of every card.</p>
+    <div class="grid2">
+      <div class="ratecard">
+        <h3>FinB ↔ Finfactor base rates</h3>
+        <div class="tag">per enquiry · monthly volume slabs</div>
+        <table><thead><tr><th class="l">Slab (enquiries/month)</th><th>Experian</th><th>CRIF</th></tr></thead>
+        <tbody>
+          <tr><td class="l">Up to 50,000</td><td class="num">₹4.50</td><td class="num">₹7.00</td></tr>
+          <tr><td class="l">50,000 – 1,00,000</td><td class="num">₹4.00</td><td class="num">₹6.00</td></tr>
+          <tr><td class="l">1,00,000 – 5,00,000</td><td class="num">₹3.60</td><td class="num">—</td></tr>
+        </tbody></table>
+      </div>
+      <div class="ratecard">
+        <h3>Uncle Handa</h3>
+        <div class="tag">Experian &amp; CRIF · per report</div>
+        <table><thead><tr><th class="l">Slab</th><th>Rate</th></tr></thead>
+        <tbody>
+          <tr><td class="l">0 – 5,000</td><td class="num">₹15.00</td></tr>
+          <tr><td class="l">5,000 – 25,000</td><td class="num">₹14.00</td></tr>
+          <tr><td class="l">25,000 – 50,000</td><td class="num">₹12.00</td></tr>
+          <tr><td class="l">50,000 – 1,00,000</td><td class="num">₹11.00</td></tr>
+          <tr><td class="l">1,00,000+</td><td class="num">₹10.00</td></tr>
+        </tbody></table>
+      </div>
+      <div class="ratecard">
+        <h3>Airpay</h3>
+        <div class="tag">Experian · per report</div>
+        <table><thead><tr><th class="l">Slab</th><th>Rate</th></tr></thead>
+        <tbody>
+          <tr><td class="l">Up to 2,500</td><td class="num">₹15.00</td></tr>
+          <tr><td class="l">2,500 – 5,000</td><td class="num">₹14.00</td></tr>
+          <tr><td class="l">5,000 – 10,000</td><td class="num">₹13.00</td></tr>
+          <tr><td class="l">10,000+</td><td class="num">₹12.00</td></tr>
+        </tbody></table>
+      </div>
+      <div class="ratecard">
+        <h3>Twigg &amp; Fynro</h3>
+        <div class="tag">Twigg: Experian · Fynro: CRIF · per enquiry</div>
+        <table><thead><tr><th class="l">Twigg slab</th><th>Rate</th><th class="l">Fynro slab</th><th>Rate</th></tr></thead>
+        <tbody>
+          <tr><td class="l">Up to 1,00,000</td><td class="num">₹15.00</td><td class="l">Up to 10,000</td><td class="num">₹20.00</td></tr>
+          <tr><td class="l">Above 1,00,000</td><td class="num">₹12.00</td><td class="l">10,001 – 50,000</td><td class="num">₹18.00</td></tr>
+          <tr><td class="l"></td><td></td><td class="l">Above 50,000</td><td class="num">₹16.00</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>Billing rule: FinB invoices client at the Finfactor-decided rate; Finfactor invoices FinB the spread (decided − base) per successful fetch. Slabs resolve on successful enquiries per calendar month.</div>
+    <div class="mono" style="margin-top:6px">Generated from credit_data_Rate_sheet.xlsx + credit_data_fetch_log · Finfactor Technologies · June 2026</div>
+  </div>
+</footer>
+
+<script>
+// ---- aggregated fetch log (client × bureau × month) ----
+const DATA = [
+  {client:"Airpay",bureau:"EXPERIAN",month:"2026-03",total:9,successful:9,failed:0},
+  {client:"Airpay",bureau:"EXPERIAN",month:"2026-04",total:22,successful:19,failed:3},
+  {client:"Airpay",bureau:"EXPERIAN",month:"2026-05",total:49,successful:43,failed:6},
+  {client:"Fynro",bureau:"CRIF",month:"2026-05",total:25,successful:25,failed:0},
+  {client:"Fynro",bureau:"EXPERIAN",month:"2026-05",total:16,successful:0,failed:16},
+  {client:"Twigg",bureau:"EXPERIAN",month:"2026-01",total:2,successful:2,failed:0},
+  {client:"Twigg",bureau:"EXPERIAN",month:"2026-02",total:12,successful:8,failed:4},
+  {client:"Twigg",bureau:"EXPERIAN",month:"2026-03",total:226,successful:7,failed:219},
+  {client:"Twigg",bureau:"EXPERIAN",month:"2026-04",total:418,successful:34,failed:384},
+  {client:"Twigg",bureau:"EXPERIAN",month:"2026-05",total:346,successful:93,failed:253},
+  {client:"Uncle Handa",bureau:"CRIF",month:"2026-04",total:45,successful:16,failed:29},
+  {client:"Uncle Handa",bureau:"CRIF",month:"2026-05",total:318,successful:22,failed:296},
+  {client:"Uncle Handa",bureau:"EXPERIAN",month:"2026-03",total:1,successful:1,failed:0},
+  {client:"Uncle Handa",bureau:"EXPERIAN",month:"2026-04",total:10,successful:6,failed:4},
+];
+
+// ---- rate cards: slabs as [maxVolumeInclusive, rate]; Infinity = top slab ----
+const BASE_RATES = {
+  EXPERIAN: [[50000,4.5],[100000,4.0],[500000,3.6]],
+  CRIF:     [[50000,7.0],[100000,6.0]],
+};
+const CLIENT_RATES = {
+  "Uncle Handa": { EXPERIAN: [[5000,15],[25000,14],[50000,12],[100000,11],[Infinity,10]],
+                   CRIF:     [[5000,15],[25000,14],[50000,12],[100000,11],[Infinity,10]] },
+  "Airpay":      { EXPERIAN: [[2500,15],[5000,14],[10000,13],[Infinity,12]] },
+  "Twigg":       { EXPERIAN: [[100000,15],[Infinity,12]] },
+  "Fynro":       { CRIF:     [[10000,20],[50000,18],[Infinity,16]] },
+};
+
+function slabRate(slabs, vol){
+  if(!slabs) return null;
+  for(const [max,rate] of slabs) if(vol<=max) return rate;
+  return slabs[slabs.length-1][1];
+}
+const inr = n => "₹" + n.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+const inr0 = n => "₹" + n.toLocaleString("en-IN",{maximumFractionDigits:2});
+const monthName = m => new Date(m+"-01").toLocaleDateString("en-IN",{month:"short",year:"numeric"});
+
+// enrich rows with billing math
+const ROWS = DATA.map(r=>{
+  const cr = slabRate(CLIENT_RATES[r.client]?.[r.bureau], r.successful);
+  const br = slabRate(BASE_RATES[r.bureau], r.successful);
+  const hasRate = cr!==null && cr!==undefined;
+  const bill = hasRate ? r.successful*cr : 0;
+  const base = hasRate ? r.successful*br : 0;
+  const comm = bill - base;
+  return {...r, clientRate:cr, baseRate:br, bill, base, comm, hasRate};
+});
+
+const months = [...new Set(ROWS.map(r=>r.month))].sort();
+const clients = [...new Set(ROWS.map(r=>r.client))].sort();
+const monthSel = document.getElementById("monthSel");
+const clientSel = document.getElementById("clientSel");
+months.forEach(m=>monthSel.add(new Option(monthName(m), m)));
+clients.forEach(c=>clientSel.add(new Option(c, c)));
+document.getElementById("metaPeriod").textContent = monthName(months[0]) + " – " + monthName(months[months.length-1]);
+
+function render(){
+  const m = monthSel.value, c = clientSel.value;
+  const rows = ROWS.filter(r => (m==="ALL"||r.month===m) && (c==="ALL"||r.client===c));
+
+  let succ=0, att=0, bill=0, comm=0, base=0;
+  rows.forEach(r=>{succ+=r.successful; att+=r.total; bill+=r.bill; comm+=r.comm; base+=r.base;});
+
+  document.getElementById("kpiFetches").textContent = succ.toLocaleString("en-IN");
+  document.getElementById("kpiFetchNote").textContent = "of " + att.toLocaleString("en-IN") + " attempted (" + (att? Math.round(succ/att*100):0) + "% success)";
+  document.getElementById("kpiClientBill").textContent = inr0(bill);
+  document.getElementById("kpiCommission").textContent = inr0(comm);
+  document.getElementById("kpiBase").textContent = inr0(base);
+
+  const bp = bill? (base/bill*100):50, cp = bill? (comm/bill*100):50;
+  const segB = document.getElementById("segBase"), segC = document.getElementById("segComm");
+  segB.style.width = bp+"%"; segC.style.width = cp+"%";
+  segB.textContent = inr0(base) + " (" + bp.toFixed(1) + "%)";
+  segC.textContent = inr0(comm) + " (" + cp.toFixed(1) + "%)";
+
+  // main table
+  const tb = document.getElementById("mainBody"); tb.innerHTML = "";
+  rows.sort((a,b)=> a.client.localeCompare(b.client) || a.bureau.localeCompare(b.bureau) || a.month.localeCompare(b.month));
+  rows.forEach(r=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      `<td>${r.client}</td>`+
+      `<td><span class="pill ${r.bureau==="EXPERIAN"?"exp":"crif"}">${r.bureau}</span></td>`+
+      `<td>${monthName(r.month)}</td>`+
+      `<td class="num">${r.total}</td>`+
+      `<td class="num">${r.failed}</td>`+
+      `<td class="num"><b>${r.successful}</b></td>`+
+      `<td class="num">${r.hasRate? inr(r.clientRate) : "no rate"}</td>`+
+      `<td class="num">${r.hasRate? inr(r.baseRate) : "—"}</td>`+
+      `<td class="num">${r.hasRate? inr(r.clientRate-r.baseRate) : "—"}</td>`+
+      `<td class="num clientbill">${inr(r.bill)}</td>`+
+      `<td class="num pos">${inr(r.comm)}</td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById("ftSucc").textContent = succ.toLocaleString("en-IN");
+  document.getElementById("ftBill").textContent = inr(bill);
+  document.getElementById("ftComm").textContent = inr(comm);
+
+  // client summary
+  const byClient = {};
+  rows.forEach(r=>{
+    byClient[r.client] ??= {succ:0,bill:0,base:0,comm:0};
+    const o = byClient[r.client];
+    o.succ+=r.successful; o.bill+=r.bill; o.base+=r.base; o.comm+=r.comm;
+  });
+  const cb = document.getElementById("clientBody"); cb.innerHTML = "";
+  Object.keys(byClient).sort().forEach(name=>{
+    const o = byClient[name];
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      `<td>${name}</td>`+
+      `<td class="num">${o.succ.toLocaleString("en-IN")}</td>`+
+      `<td class="num clientbill">${inr(o.bill)}</td>`+
+      `<td class="num">${inr(o.base)}</td>`+
+      `<td class="num pos">${inr(o.comm)}</td>`+
+      `<td class="num">${o.succ? inr(o.comm/o.succ) : "—"}</td>`;
+    cb.appendChild(tr);
+  });
+
+  document.getElementById("fynroNote").style.display =
+    rows.some(r=>r.client==="Fynro" && r.bureau==="EXPERIAN") ? "block" : "none";
+}
+monthSel.addEventListener("change", render);
+clientSel.addEventListener("change", render);
+render();
+</script>
+</body>
+</html>
