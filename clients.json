@@ -1,4 +1,15 @@
 {
-  "clients": {},
+  "clients": {
+    "pfm@handauncle": "Uncle Handa",
+    "pfm@twigg": "Twigg",
+    "pfm@airpaymoney": "Airpay",
+    "pfm@fynro": "Fynro",
+    "pfm-fynro": "Fynro",
+    "pfm@roinetsecurities": "Roi Net Securities",
+    "ROI-STCKB-FIU-260609": "Roi Net Securities",
+    "pfm@pnb": "PNB",
+    "pfm@jcwealth": "JC Wealth",
+    "fiulive@jcwealth": "JC Wealth"
+  },
   "ignore": []
 }

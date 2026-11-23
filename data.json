@@ -1,0 +1,485 @@
+{
+  "generatedAt": "2026-11-23T09:05:28.829Z",
+  "vendor": "FinB",
+  "records": 41927,
+  "unmapped": [],
+  "rows": [
+    {
+      "client": "Airpay",
+      "bureau": "EXPERIAN",
+      "month": "2026-03",
+      "total": 9,
+      "successful": 9,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "client": "Airpay",
+      "bureau": "EXPERIAN",
+      "month": "2026-04",
+      "total": 22,
+      "successful": 19,
+      "failed": 3,
+      "pending": 0
+    },
+    {
+      "client": "Airpay",
+      "bureau": "EXPERIAN",
+      "month": "2026-05",
+      "total": 49,
+      "successful": 43,
+      "failed": 6,
+      "pending": 0
+    },
+    {
+      "client": "Airpay",
+      "bureau": "EXPERIAN",
+      "month": "2026-06",
+      "total": 119,
+      "successful": 113,
+      "failed": 6,
+      "pending": 0
+    },
+    {
+      "client": "Airpay",
+      "bureau": "EXPERIAN",
+      "month": "2026-07",
+      "total": 308,
+      "successful": 273,
+      "failed": 35,
+      "pending": 0
+    },
+    {
+      "client": "Airpay",
+      "bureau": "EXPERIAN",
+      "month": "2026-08",
+      "total": 538,
+      "successful": 374,
+      "failed": 164,
+      "pending": 0
+    },
+    {
+      "client": "Airpay",
+      "bureau": "EXPERIAN",
+      "month": "2026-09",
+      "total": 731,
+      "successful": 492,
+      "failed": 239,
+      "pending": 0
+    },
+    {
+      "client": "Airpay",
+      "bureau": "EXPERIAN",
+      "month": "2026-10",
+      "total": 992,
+      "successful": 679,
+      "failed": 313,
+      "pending": 0
+    },
+    {
+      "client": "Airpay",
+      "bureau": "EXPERIAN",
+      "month": "2026-11",
+      "total": 1312,
+      "successful": 421,
+      "failed": 891,
+      "pending": 0
+    },
+    {
+      "client": "Fynro",
+      "bureau": "CRIF",
+      "month": "2026-05",
+      "total": 27,
+      "successful": 27,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "client": "Fynro",
+      "bureau": "CRIF",
+      "month": "2026-06",
+      "total": 36,
+      "successful": 36,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "client": "Fynro",
+      "bureau": "CRIF",
+      "month": "2026-07",
+      "total": 46,
+      "successful": 24,
+      "failed": 22,
+      "pending": 0
+    },
+    {
+      "client": "Fynro",
+      "bureau": "CRIF",
+      "month": "2026-08",
+      "total": 68,
+      "successful": 54,
+      "failed": 14,
+      "pending": 0
+    },
+    {
+      "client": "Fynro",
+      "bureau": "CRIF",
+      "month": "2026-09",
+      "total": 380,
+      "successful": 0,
+      "failed": 380,
+      "pending": 0
+    },
+    {
+      "client": "Fynro",
+      "bureau": "CRIF",
+      "month": "2026-10",
+      "total": 223,
+      "successful": 67,
+      "failed": 156,
+      "pending": 0
+    },
+    {
+      "client": "Fynro",
+      "bureau": "CRIF",
+      "month": "2026-11",
+      "total": 100,
+      "successful": 100,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "client": "Fynro",
+      "bureau": "EXPERIAN",
+      "month": "2026-05",
+      "total": 16,
+      "successful": 0,
+      "failed": 16,
+      "pending": 0
+    },
+    {
+      "client": "JC Wealth",
+      "bureau": "CRIF",
+      "month": "2026-08",
+      "total": 15,
+      "successful": 8,
+      "failed": 7,
+      "pending": 0
+    },
+    {
+      "client": "JC Wealth",
+      "bureau": "CRIF",
+      "month": "2026-09",
+      "total": 21,
+      "successful": 0,
+      "failed": 21,
+      "pending": 0
+    },
+    {
+      "client": "JC Wealth",
+      "bureau": "CRIF",
+      "month": "2026-10",
+      "total": 12,
+      "successful": 5,
+      "failed": 7,
+      "pending": 0
+    },
+    {
+      "client": "JC Wealth",
+      "bureau": "CRIF",
+      "month": "2026-11",
+      "total": 15,
+      "successful": 13,
+      "failed": 2,
+      "pending": 0
+    },
+    {
+      "client": "JC Wealth",
+      "bureau": "EXPERIAN",
+      "month": "2026-08",
+      "total": 20,
+      "successful": 0,
+      "failed": 20,
+      "pending": 0
+    },
+    {
+      "client": "PNB",
+      "bureau": "EXPERIAN",
+      "month": "2026-09",
+      "total": 111,
+      "successful": 8,
+      "failed": 103,
+      "pending": 0
+    },
+    {
+      "client": "Roi Net Securities",
+      "bureau": "CRIF",
+      "month": "2026-07",
+      "total": 1336,
+      "successful": 1100,
+      "failed": 236,
+      "pending": 0
+    },
+    {
+      "client": "Roi Net Securities",
+      "bureau": "CRIF",
+      "month": "2026-08",
+      "total": 2288,
+      "successful": 1376,
+      "failed": 912,
+      "pending": 0
+    },
+    {
+      "client": "Roi Net Securities",
+      "bureau": "CRIF",
+      "month": "2026-09",
+      "total": 5230,
+      "successful": 0,
+      "failed": 5230,
+      "pending": 0
+    },
+    {
+      "client": "Roi Net Securities",
+      "bureau": "CRIF",
+      "month": "2026-10",
+      "total": 3442,
+      "successful": 1806,
+      "failed": 1636,
+      "pending": 0
+    },
+    {
+      "client": "Roi Net Securities",
+      "bureau": "CRIF",
+      "month": "2026-11",
+      "total": 1656,
+      "successful": 1534,
+      "failed": 122,
+      "pending": 0
+    },
+    {
+      "client": "Roi Net Securities",
+      "bureau": "EXPERIAN",
+      "month": "2026-07",
+      "total": 168,
+      "successful": 0,
+      "failed": 168,
+      "pending": 0
+    },
+    {
+      "client": "Roi Net Securities",
+      "bureau": "EXPERIAN",
+      "month": "2026-08",
+      "total": 29,
+      "successful": 0,
+      "failed": 29,
+      "pending": 0
+    },
+    {
+      "client": "Roi Net Securities",
+      "bureau": "EXPERIAN",
+      "month": "2026-09",
+      "total": 36,
+      "successful": 0,
+      "failed": 36,
+      "pending": 0
+    },
+    {
+      "client": "Roi Net Securities",
+      "bureau": "EXPERIAN",
+      "month": "2026-10",
+      "total": 18,
+      "successful": 0,
+      "failed": 18,
+      "pending": 0
+    },
+    {
+      "client": "Twigg",
+      "bureau": "EXPERIAN",
+      "month": "2026-01",
+      "total": 2,
+      "successful": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "client": "Twigg",
+      "bureau": "EXPERIAN",
+      "month": "2026-02",
+      "total": 12,
+      "successful": 8,
+      "failed": 4,
+      "pending": 0
+    },
+    {
+      "client": "Twigg",
+      "bureau": "EXPERIAN",
+      "month": "2026-03",
+      "total": 226,
+      "successful": 7,
+      "failed": 219,
+      "pending": 0
+    },
+    {
+      "client": "Twigg",
+      "bureau": "EXPERIAN",
+      "month": "2026-04",
+      "total": 418,
+      "successful": 34,
+      "failed": 384,
+      "pending": 0
+    },
+    {
+      "client": "Twigg",
+      "bureau": "EXPERIAN",
+      "month": "2026-05",
+      "total": 370,
+      "successful": 93,
+      "failed": 277,
+      "pending": 0
+    },
+    {
+      "client": "Twigg",
+      "bureau": "EXPERIAN",
+      "month": "2026-06",
+      "total": 946,
+      "successful": 107,
+      "failed": 839,
+      "pending": 0
+    },
+    {
+      "client": "Twigg",
+      "bureau": "EXPERIAN",
+      "month": "2026-07",
+      "total": 1248,
+      "successful": 140,
+      "failed": 1108,
+      "pending": 0
+    },
+    {
+      "client": "Twigg",
+      "bureau": "EXPERIAN",
+      "month": "2026-08",
+      "total": 1451,
+      "successful": 141,
+      "failed": 1310,
+      "pending": 0
+    },
+    {
+      "client": "Twigg",
+      "bureau": "EXPERIAN",
+      "month": "2026-09",
+      "total": 521,
+      "successful": 135,
+      "failed": 386,
+      "pending": 0
+    },
+    {
+      "client": "Twigg",
+      "bureau": "EXPERIAN",
+      "month": "2026-10",
+      "total": 493,
+      "successful": 137,
+      "failed": 356,
+      "pending": 0
+    },
+    {
+      "client": "Twigg",
+      "bureau": "EXPERIAN",
+      "month": "2026-11",
+      "total": 400,
+      "successful": 135,
+      "failed": 265,
+      "pending": 0
+    },
+    {
+      "client": "Uncle Handa",
+      "bureau": "CRIF",
+      "month": "2026-04",
+      "total": 45,
+      "successful": 16,
+      "failed": 29,
+      "pending": 0
+    },
+    {
+      "client": "Uncle Handa",
+      "bureau": "CRIF",
+      "month": "2026-05",
+      "total": 687,
+      "successful": 30,
+      "failed": 657,
+      "pending": 0
+    },
+    {
+      "client": "Uncle Handa",
+      "bureau": "CRIF",
+      "month": "2026-06",
+      "total": 2309,
+      "successful": 175,
+      "failed": 2134,
+      "pending": 0
+    },
+    {
+      "client": "Uncle Handa",
+      "bureau": "CRIF",
+      "month": "2026-07",
+      "total": 2091,
+      "successful": 204,
+      "failed": 1887,
+      "pending": 0
+    },
+    {
+      "client": "Uncle Handa",
+      "bureau": "CRIF",
+      "month": "2026-08",
+      "total": 2376,
+      "successful": 438,
+      "failed": 1938,
+      "pending": 0
+    },
+    {
+      "client": "Uncle Handa",
+      "bureau": "CRIF",
+      "month": "2026-09",
+      "total": 3097,
+      "successful": 0,
+      "failed": 3097,
+      "pending": 0
+    },
+    {
+      "client": "Uncle Handa",
+      "bureau": "CRIF",
+      "month": "2026-10",
+      "total": 3464,
+      "successful": 378,
+      "failed": 3086,
+      "pending": 0
+    },
+    {
+      "client": "Uncle Handa",
+      "bureau": "CRIF",
+      "month": "2026-11",
+      "total": 2387,
+      "successful": 749,
+      "failed": 1638,
+      "pending": 0
+    },
+    {
+      "client": "Uncle Handa",
+      "bureau": "EXPERIAN",
+      "month": "2026-03",
+      "total": 1,
+      "successful": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "client": "Uncle Handa",
+      "bureau": "EXPERIAN",
+      "month": "2026-04",
+      "total": 10,
+      "successful": 6,
+      "failed": 4,
+      "pending": 0
+    }
+  ]
+}
