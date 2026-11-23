@@ -252,7 +252,7 @@
       </div>
       <div class="ratecard">
         <h3>JC Wealth</h3>
-        <div class="tag">Experian · per report · minimum billing ₹20,000 per month (not applied here)</div>
+        <div class="tag">Experian &amp; CRIF · per report · minimum billing ₹20,000 per month (not applied here)</div>
         <table><thead><tr><th class="l">Slab</th><th>Rate</th></tr></thead>
         <tbody>
           <tr><td class="l">Up to 5,000</td><td class="num">₹12.00</td></tr>
@@ -305,7 +305,8 @@ const CLIENT_RATES = {
   "Twigg":       { EXPERIAN: [[100000,15],[Infinity,12]] },
   "Fynro":       { CRIF:     [[10000,20],[50000,18],[Infinity,16]] },
   "Roi Net Securities": { CRIF: [[10000,15],[20000,14],[Infinity,12]] },
-  "JC Wealth":   { EXPERIAN: [[5000,12],[10000,11],[Infinity,10]] },
+  "JC Wealth":   { EXPERIAN: [[5000,12],[10000,11],[Infinity,10]],
+                   CRIF:     [[5000,12],[10000,11],[Infinity,10]] },
 };
 
 function slabRate(slabs, vol){
