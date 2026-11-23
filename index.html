@@ -33,6 +33,17 @@
   .controls label{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
   select{font-family:'IBM Plex Mono',monospace;font-size:13px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
   select:focus{outline:2px solid var(--indigo);outline-offset:1px}
+  .btn{font-family:'IBM Plex Mono',monospace;font-size:13px;padding:7px 14px;border:1px solid var(--indigo);border-radius:8px;background:var(--indigo);color:#fff;cursor:pointer}
+  .btn:hover{background:#1E3373}
+  .btn:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+  .btn:disabled{opacity:.55;cursor:progress}
+  .btn.ghost{background:var(--card);color:var(--indigo)}
+  .btn.ghost:hover{background:var(--indigo-soft)}
+  .refresh{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .rmsg{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted)}
+  .rmsg.err{color:var(--red)} .rmsg.ok{color:var(--rupee)}
+  .tokenrow{display:none;gap:10px;align-items:center;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:6px 0 10px;font-size:13px;color:var(--muted)}
+  .tokenrow input{flex:1;min-width:240px;font-family:'IBM Plex Mono',monospace;font-size:13px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;color:var(--ink)}
 
   .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:14px 0 8px}
   .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
@@ -122,6 +133,16 @@
     <select id="monthSel"><option value="ALL">All months</option></select>
     <label for="clientSel">Client</label>
     <select id="clientSel"><option value="ALL">All clients</option></select>
+    <div class="refresh">
+      <span class="rmsg" id="refreshMsg" role="status" aria-live="polite"></span>
+      <button class="btn" id="refreshBtn" type="button">Refresh data</button>
+    </div>
+  </div>
+  <div class="tokenrow" id="tokenRow">
+    <span>Refreshing runs the sync workflow on GitHub. Paste a GitHub token with Actions read and write access to this repository. It is kept in this browser only.</span>
+    <input type="password" id="ghToken" autocomplete="off" aria-label="GitHub token" placeholder="github_pat_…">
+    <button class="btn" id="saveToken" type="button">Save and refresh</button>
+    <button class="btn ghost" id="cancelToken" type="button">Cancel</button>
   </div>
 
   <div class="kpis">
@@ -334,7 +355,9 @@ let ROWS = [];
 const monthSel = document.getElementById("monthSel");
 const clientSel = document.getElementById("clientSel");
 
+let lastGenerated = null;
 function load(payload){
+  lastGenerated = payload.generatedAt || null;
   ROWS = enrich(payload.rows);
   const months = [...new Set(ROWS.map(r=>r.month))].sort();
   const clients = [...new Set(ROWS.map(r=>r.client))].sort();
@@ -442,10 +465,75 @@ function render(){
 monthSel.addEventListener("change", render);
 clientSel.addEventListener("change", render);
 load(SNAPSHOT);
-fetch("data.json",{cache:"no-store"})
+const fetchData = () => fetch("data.json?t="+Date.now(),{cache:"no-store"})
   .then(r=>r.ok ? r.json() : null)
-  .then(d=>{ if(d && Array.isArray(d.rows) && d.rows.length) load(d); })
-  .catch(()=>{});
+  .then(d=>(d && Array.isArray(d.rows) && d.rows.length) ? d : null)
+  .catch(()=>null);
+fetchData().then(d=>{ if(d) load(d); });
+
+// ---- manual refresh: runs the sync workflow on GitHub, then reloads data.json ----
+const REPO = location.hostname.endsWith(".github.io")
+  ? location.hostname.split(".")[0] + "/" + location.pathname.split("/")[1]
+  : "adityasingh42069/finb-billing-dashboard";
+const GH = "https://api.github.com/repos/" + REPO + "/actions/workflows/sync.yml";
+const TOKEN_KEY = "finb-dashboard-gh-token";
+const store = {
+  get(){ try{ return localStorage.getItem(TOKEN_KEY) || ""; }catch(e){ return ""; } },
+  set(v){ try{ v ? localStorage.setItem(TOKEN_KEY, v) : localStorage.removeItem(TOKEN_KEY); }catch(e){} },
+};
+const refreshBtn = document.getElementById("refreshBtn");
+const refreshMsg = document.getElementById("refreshMsg");
+const tokenRow = document.getElementById("tokenRow");
+const tokenInput = document.getElementById("ghToken");
+const say = (text, cls) => { refreshMsg.textContent = text; refreshMsg.className = "rmsg" + (cls ? " " + cls : ""); };
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const askToken = show => { tokenRow.style.display = show ? "flex" : "none"; if(show) tokenInput.focus(); };
+
+async function refresh(token){
+  const gh = (url, opt={}) => fetch(url, {...opt, headers:{Authorization:"Bearer "+token, Accept:"application/vnd.github+json", ...(opt.headers||{})}});
+  refreshBtn.disabled = true;
+  const before = lastGenerated, started = Date.now();
+  try{
+    say("Starting the sync…");
+    const res = await gh(GH + "/dispatches", {method:"POST", body:JSON.stringify({ref:"main"})});
+    if(res.status === 401 || res.status === 403 || res.status === 404){
+      store.set(""); askToken(true);
+      return say("GitHub rejected the token. Paste one with Actions access to this repository.", "err");
+    }
+    if(!res.ok) return say("Could not start the sync (HTTP " + res.status + ").", "err");
+
+    // wait for the run this click started
+    let run = null;
+    for(let i=0; i<72 && !(run && run.status === "completed"); i++){
+      await sleep(5000);
+      const list = await gh(GH + "/runs?event=workflow_dispatch&per_page=5").then(r=>r.ok ? r.json() : null).catch(()=>null);
+      run = list && list.workflow_runs.find(w => new Date(w.created_at).getTime() >= started - 60000) || run;
+      say(run ? "Sync " + run.status.replace("_"," ") + "…" : "Waiting for the sync to start…");
+    }
+    if(!run || run.status !== "completed") return say("The sync is taking longer than expected. Check the Actions tab.", "err");
+    if(run.conclusion !== "success") return say("The sync failed. Check the Actions tab.", "err");
+
+    // the workflow commits data.json; wait for the site to publish it
+    say("Sync finished. Waiting for the site to publish…");
+    for(let i=0; i<18; i++){
+      const d = await fetchData();
+      if(d && d.generatedAt && d.generatedAt !== before){ load(d); return say("Updated.", "ok"); }
+      await sleep(10000);
+    }
+    say("The sync ran but published no newer data. Check that its secrets are set.", "err");
+  }catch(e){
+    say("Could not reach GitHub. Check the connection and try again.", "err");
+  }finally{
+    refreshBtn.disabled = false;
+  }
+}
+refreshBtn.addEventListener("click", ()=>{ const t = store.get(); t ? refresh(t) : askToken(true); });
+document.getElementById("saveToken").addEventListener("click", ()=>{
+  const t = tokenInput.value.trim(); if(!t) return tokenInput.focus();
+  store.set(t); tokenInput.value = ""; askToken(false); refresh(t);
+});
+document.getElementById("cancelToken").addEventListener("click", ()=>askToken(false));
+tokenInput.addEventListener("keydown", e=>{ if(e.key === "Enter") document.getElementById("saveToken").click(); });
 </script>
 </body>
 </html>
