@@ -110,7 +110,7 @@
       <span>Billing period <b id="metaPeriod">—</b></span>
       <span>Vendor <b>FinB</b></span>
       <span>Channel partner <b>Finfactor</b></span>
-      <span>Source <b>credit_data_fetch_log (1,499 records)</b></span>
+      <span>Source <b id="metaSource">credit_data_fetch_log</b></span>
     </div>
   </div>
 </header>
@@ -181,9 +181,7 @@
         </tr>
       </tfoot>
     </table>
-    <div class="callout" id="fynroNote" style="display:none">
-      <b>Note — Fynro (Experian):</b> 16 Experian fetch attempts were logged for Fynro in May 2026, all failed. No Experian rate has been agreed for Fynro in the rate sheet; since billing applies only to successful fetches, the billing impact is ₹0, but the rate gap is worth closing.
-    </div>
+    <div class="callout" id="rateNote" style="display:none"></div>
   </section>
 
   <section>
@@ -197,7 +195,7 @@
 
   <section>
     <h2 class="sec">Rate card reference</h2>
-    <p class="secsub">As captured in the agreed rate sheet. All current monthly volumes fall in the first slab of every card.</p>
+    <p class="secsub">As captured in the agreed rate sheet.</p>
     <div class="grid2">
       <div class="ratecard">
         <h3>FinB ↔ Finfactor base rates</h3>
@@ -250,13 +248,15 @@
 <footer>
   <div class="wrap">
     <div>Billing rule: FinB invoices client at the Finfactor-decided rate; Finfactor invoices FinB the spread (decided − base) per successful fetch. Slabs resolve on successful enquiries per calendar month.</div>
-    <div class="mono" style="margin-top:6px">Generated from credit_data_Rate_sheet.xlsx + credit_data_fetch_log · Finfactor Technologies · June 2026</div>
+    <div class="mono" style="margin-top:6px" id="footSource">Generated from credit_data_Rate_sheet.xlsx + credit_data_fetch_log · Finfactor Technologies</div>
   </div>
 </footer>
 
 <script>
 // ---- aggregated fetch log (client × bureau × month) ----
-const DATA = [
+// Fallback snapshot. The live figures come from data.json, which
+// scripts/sync.mjs builds from the credit data fetch-logs API.
+const SNAPSHOT = {generatedAt:null, records:1499, rows:[
   {client:"Airpay",bureau:"EXPERIAN",month:"2026-03",total:9,successful:9,failed:0},
   {client:"Airpay",bureau:"EXPERIAN",month:"2026-04",total:22,successful:19,failed:3},
   {client:"Airpay",bureau:"EXPERIAN",month:"2026-05",total:49,successful:43,failed:6},
@@ -271,7 +271,7 @@ const DATA = [
   {client:"Uncle Handa",bureau:"CRIF",month:"2026-05",total:318,successful:22,failed:296},
   {client:"Uncle Handa",bureau:"EXPERIAN",month:"2026-03",total:1,successful:1,failed:0},
   {client:"Uncle Handa",bureau:"EXPERIAN",month:"2026-04",total:10,successful:6,failed:4},
-];
+]};
 
 // ---- rate cards: slabs as [maxVolumeInclusive, rate]; Infinity = top slab ----
 const BASE_RATES = {
@@ -291,12 +291,13 @@ function slabRate(slabs, vol){
   for(const [max,rate] of slabs) if(vol<=max) return rate;
   return slabs[slabs.length-1][1];
 }
+const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const inr = n => "₹" + n.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
 const inr0 = n => "₹" + n.toLocaleString("en-IN",{maximumFractionDigits:2});
 const monthName = m => new Date(m+"-01").toLocaleDateString("en-IN",{month:"short",year:"numeric"});
 
 // enrich rows with billing math
-const ROWS = DATA.map(r=>{
+const enrich = data => data.map(r=>{
   const cr = slabRate(CLIENT_RATES[r.client]?.[r.bureau], r.successful);
   const br = slabRate(BASE_RATES[r.bureau], r.successful);
   const hasRate = cr!==null && cr!==undefined;
@@ -306,13 +307,32 @@ const ROWS = DATA.map(r=>{
   return {...r, clientRate:cr, baseRate:br, bill, base, comm, hasRate};
 });
 
-const months = [...new Set(ROWS.map(r=>r.month))].sort();
-const clients = [...new Set(ROWS.map(r=>r.client))].sort();
+let ROWS = [];
 const monthSel = document.getElementById("monthSel");
 const clientSel = document.getElementById("clientSel");
-months.forEach(m=>monthSel.add(new Option(monthName(m), m)));
-clients.forEach(c=>clientSel.add(new Option(c, c)));
-document.getElementById("metaPeriod").textContent = monthName(months[0]) + " – " + monthName(months[months.length-1]);
+
+function load(payload){
+  ROWS = enrich(payload.rows);
+  const months = [...new Set(ROWS.map(r=>r.month))].sort();
+  const clients = [...new Set(ROWS.map(r=>r.client))].sort();
+  monthSel.length = 1; clientSel.length = 1;
+  months.forEach(m=>monthSel.add(new Option(monthName(m), m)));
+  clients.forEach(c=>clientSel.add(new Option(c, c)));
+  document.getElementById("metaPeriod").textContent = months.length
+    ? monthName(months[0]) + " – " + monthName(months[months.length-1]) : "—";
+
+  const recs = (payload.records ?? ROWS.reduce((n,r)=>n+r.total,0)).toLocaleString("en-IN");
+  const synced = payload.generatedAt
+    ? new Date(payload.generatedAt).toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})
+    : null;
+  document.getElementById("metaSource").textContent = synced
+    ? `fetch-logs API (${recs} records) · synced ${synced}`
+    : `credit_data_fetch_log (${recs} records) · static snapshot`;
+  document.getElementById("footSource").textContent = synced
+    ? `Generated from credit_data_Rate_sheet.xlsx + credit data fetch-logs API · last sync ${synced} · Finfactor Technologies`
+    : "Generated from credit_data_Rate_sheet.xlsx + credit_data_fetch_log · Finfactor Technologies · June 2026";
+  render();
+}
 
 function render(){
   const m = monthSel.value, c = clientSel.value;
@@ -339,8 +359,8 @@ function render(){
   rows.forEach(r=>{
     const tr = document.createElement("tr");
     tr.innerHTML =
-      `<td>${r.client}</td>`+
-      `<td><span class="pill ${r.bureau==="EXPERIAN"?"exp":"crif"}">${r.bureau}</span></td>`+
+      `<td>${esc(r.client)}</td>`+
+      `<td><span class="pill ${r.bureau==="EXPERIAN"?"exp":"crif"}">${esc(r.bureau)}</span></td>`+
       `<td>${monthName(r.month)}</td>`+
       `<td class="num">${r.total}</td>`+
       `<td class="num">${r.failed}</td>`+
@@ -368,7 +388,7 @@ function render(){
     const o = byClient[name];
     const tr = document.createElement("tr");
     tr.innerHTML =
-      `<td>${name}</td>`+
+      `<td>${esc(name)}</td>`+
       `<td class="num">${o.succ.toLocaleString("en-IN")}</td>`+
       `<td class="num clientbill">${inr(o.bill)}</td>`+
       `<td class="num">${inr(o.base)}</td>`+
@@ -377,12 +397,32 @@ function render(){
     cb.appendChild(tr);
   });
 
-  document.getElementById("fynroNote").style.display =
-    rows.some(r=>r.client==="Fynro" && r.bureau==="EXPERIAN") ? "block" : "none";
+  // fetches logged against a client × bureau that has no agreed rate
+  const gaps = {};
+  rows.filter(r=>!r.hasRate).forEach(r=>{
+    const g = gaps[r.client+"|"+r.bureau] ??= {client:r.client,bureau:r.bureau,total:0,succ:0};
+    g.total+=r.total; g.succ+=r.successful;
+  });
+  const note = document.getElementById("rateNote");
+  const list = Object.values(gaps);
+  note.style.display = list.length ? "block" : "none";
+  note.textContent = "";
+  list.forEach(g=>{
+    const p = document.createElement("div"), b = document.createElement("b");
+    b.textContent = `No agreed rate — ${g.client} (${g.bureau}): `;
+    p.append(b, `${g.total.toLocaleString("en-IN")} fetch attempts logged, ${g.succ.toLocaleString("en-IN")} successful. ` +
+      (g.succ ? "These successful fetches are not billed until a rate is added to the rate sheet."
+              : "Nothing is billable yet, but the rate gap is worth closing."));
+    note.appendChild(p);
+  });
 }
 monthSel.addEventListener("change", render);
 clientSel.addEventListener("change", render);
-render();
+load(SNAPSHOT);
+fetch("data.json",{cache:"no-store"})
+  .then(r=>r.ok ? r.json() : null)
+  .then(d=>{ if(d && Array.isArray(d.rows) && d.rows.length) load(d); })
+  .catch(()=>{});
 </script>
 </body>
 </html>
