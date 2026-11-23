@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-23T09:05:28.829Z",
+  "generatedAt": "2026-11-23T09:15:05.058Z",
   "vendor": "FinB",
-  "records": 41927,
+  "records": 41816,
   "unmapped": [],
   "rows": [
     {
@@ -200,15 +200,6 @@
       "total": 20,
       "successful": 0,
       "failed": 20,
-      "pending": 0
-    },
-    {
-      "client": "PNB",
-      "bureau": "EXPERIAN",
-      "month": "2026-09",
-      "total": 111,
-      "successful": 8,
-      "failed": 103,
       "pending": 0
     },
     {
